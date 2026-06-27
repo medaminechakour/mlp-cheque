@@ -14,10 +14,78 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  role      String   @default("USER")
-  createdAt DateTime @default(now())
+  id            Int             @id @default(autoincrement())
+  email         String          @unique
+  password      String
+  name          String?
+  role          String          @default("USER")
+  createdAt     DateTime        @default(now())
+  cheques       Cheque[]
+  statusChanges StatusHistory[]
+}
+
+model Bank {
+  id      Int      @id @default(autoincrement())
+  nom     String
+  code    Int
+  agence  String?
+  cheques Cheque[]
+}
+
+model Client {
+  id           Int      @id @default(autoincrement())
+  resonSociale String
+  ice          String?
+  email        String?
+  telephone    String?
+  adresse      String?
+  ville        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  cheques      Cheque[]
+}
+
+model Attachment {
+  id         Int      @id @default(autoincrement())
+  fileName   String
+  filePath   String
+  fileSize   Int
+  memeType   String
+  uploadedAt DateTime @default(now())
+  cheques    Cheque   @relation(fields: [chequeId], references: [id])
+  chequeId   Int
+}
+
+model StatusHistory {
+  id            Int      @id @default(autoincrement())
+  ancienStatus  String
+  nouveauStatus String
+  motif         String?
+  changedAt     DateTime @default(now())
+  cheque        Cheque   @relation(fields: [chequeId], references: [id])
+  chequeId      Int
+  changedBy     User     @relation(fields: [changedById], references: [id])
+  changedById   Int
+}
+
+model Cheque {
+  id            Int             @id @default(autoincrement())
+  numero        String          @unique
+  montant       Float
+  devise        String          @default("MAD")
+  issueDate     DateTime
+  dueDate       DateTime
+  statut        String          @default("EN_COURS")
+  motifImpaye   String?
+  notes         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  client        Client          @relation(fields: [clientId], references: [id])
+  clientId      Int
+  bank          Bank            @relation(fields: [bankId], references: [id])
+  bankId        Int
+  createdBy     User            @relation(fields: [createdById], references: [id])
+  createdById   Int
+  attachments   Attachment[]
+  statusHistory StatusHistory[]
 }
